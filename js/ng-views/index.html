@@ -1,0 +1,5 @@
+<h1>In the index</h1>
+
+<div data-ng-repeat="instagram in vm.instagrams">
+  <p><a ui-sref="instagramShow({id: $index})">{{instagram.author}}</a></p>
+</div>
