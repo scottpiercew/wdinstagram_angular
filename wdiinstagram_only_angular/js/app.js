@@ -2,10 +2,7 @@
 
 (function(){
   angular
-    .module("wdiInstagram", [
-      "ui.router",
-      "ngResource"
-    ])
+    .module("wdiInstagram", ["ui.router"])
     .config([
       "$stateProvider",
       Router
@@ -14,28 +11,30 @@
       "$stateParams",
       WdiInstagramControllerFunc
     ])
+    .controller("WdiInstagramNewController", [
+      "WdiIn"
+    ])
     .controller("WdiInstagramIndexController", [
       "WdiInstagramFactory",
       WdiInstagramIndexControllerFunc
     ])
     .controller("WdiInstagramShowController", [
-      "WdiInstagramFactory",
       "$stateParams",
       WdiInstagramShowControllerFunc
     ])
     .factory("WdiInstagramFactory", [
-      "$resource",
       WdiInstagramFactoryFunc
     ]);
 
-  function WdiInstagramIndexControllerFunc( WdiInstagramFactory){
-    WdiInstagramFactory.helloWorld()
-    this.instagrams = WdiInstagramFactory.query()
+  function WdiInstagramIndexControllerFunc(){
+    console.log("I'm in the controller")
+    this.instagrams = wdiInstagramData
+    WdiInstagramFactory.helloWorld();
   }
 
-  function WdiInstagramShowControllerFunc(WdiInstagramFactory, $stateParams){
+  function WdiInstagramShowControllerFunc($stateParams){
     console.log("$stateParams")
-    this.instagram = WdiInstagramFactory.get({id: $stateParams.id});
+    this.instagram = wdiInstagramData[$stateParams.id];
   }
 
   function WdiInstagramControllerFunc($state, $stateParams){
@@ -45,18 +44,23 @@
   function WdiInstagramFactoryFunc(){
     return {
       helloWorld: function(){
-        console.log( "Hello World!");
+        console.log( "Hello world!");
       }
     }
   }
   function Router($stateProvider){
-    console.log("Working")
     $stateProvider
       .state("instagramIndex", {
         url: "/instagrams",
         controller: "WdiInstagramIndexController",
         controllerAs: "vm",
         templateUrl: "js/ng-views/index.html"
+      })
+      .state("instagramNew", {
+        url: "/instagrams/new",
+        templateUrl: "js/ng-views/new.html",
+        controller: "WdiInstagramNewController",
+        controllerAs: "vm"
       })
       .state("instagramShow", {
         url: "/instagrams/:id",
