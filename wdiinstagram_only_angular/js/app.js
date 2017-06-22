@@ -2,7 +2,10 @@
 
 (function(){
   angular
-    .module("wdiInstagram", ["ui.router"])
+    .module("wdiInstagram", [
+      "ui.router",
+      "ngResource"
+    ])
     .config([
       "$stateProvider",
       Router
@@ -12,42 +15,63 @@
       WdiInstagramControllerFunc
     ])
     .controller("WdiInstagramNewController", [
-      "WdiIn"
+      "WdiInstagramFactory",
+      WdiInstagramNewControllerFunc
+    ])
+    .controller("WdiInstagramEditController", [
+      "WdiInstagramFactory",
+      "$stateParams",
+      WdiInstagramEditControllerFunc
     ])
     .controller("WdiInstagramIndexController", [
       "WdiInstagramFactory",
       WdiInstagramIndexControllerFunc
     ])
     .controller("WdiInstagramShowController", [
+      "WdiInstagramFactory",
       "$stateParams",
       WdiInstagramShowControllerFunc
     ])
     .factory("WdiInstagramFactory", [
+      "$resource",
       WdiInstagramFactoryFunc
     ]);
 
-  function WdiInstagramIndexControllerFunc(){
-    console.log("I'm in the controller")
-    this.instagrams = wdiInstagramData
-    WdiInstagramFactory.helloWorld();
+  function WdiInstagramNewControllerFunc( WdiInstagramFactory ){
+    this.instagram = new WdiInstagramFactory();
+    this.create = function(){
+      this.instagram.$save()
+    }
   }
 
-  function WdiInstagramShowControllerFunc($stateParams){
-    console.log("$stateParams")
-    this.instagram = wdiInstagramData[$stateParams.id];
+  function WdiInstagramEditControllerFunc( WdiInstagramFactory, $stateParams ){
+    this.instagram = WdiInstagramFactory.get({id: $stateParams.id});
+    this.update = function(){
+      this.instagram.$update({id: $stateParams.id})
+    }
+    this.destroy = function(){
+      this.instagram.$delete({id: $stateParams.id})
+    }
+  }
+  function WdiInstagramIndexControllerFunc( WdiInstagramFactory ){
+    console.log("I'm in the controller")
+    this.instagrams = WdiInstagramFactory.query();
+  }
+
+  function WdiInstagramShowControllerFunc(WdiInstagramFactory, $stateParams){
+    this.instagram = WdiInstagramFactory.get({id: $stateParams.id});
   }
 
   function WdiInstagramControllerFunc($state, $stateParams){
     this.instagrams = wdiInstagramData
   }
 
-  function WdiInstagramFactoryFunc(){
-    return {
-      helloWorld: function(){
-        console.log( "Hello world!");
-      }
-    }
+  function WdiInstagramFactoryFunc($resource){
+    return $resource( "http://localhost:3000/instagrams/:id", {}, {
+      update: { method: "PUT" }
+    });
   }
+
   function Router($stateProvider){
     $stateProvider
       .state("instagramIndex", {
